@@ -4,6 +4,7 @@
 #include "settings.h"
 #include "ui_messagewidget.h"
 #include "utils.h"
+#include "verificationcode.h"
 
 #include <QClipboard>
 #include <QEventLoop>
@@ -39,6 +40,14 @@ MessageWidget::MessageWidget(MessageItem * item, QIcon icon, QWidget *parent) :
     ui->label_date->setText((settings->useLocale() ? QLocale::system().toString(item->date(), QLocale::FormatType::ShortFormat) : item->date().toString("yyyy-MM-dd, hh:mm")) + " ");
 
     // Message contents
+    verificationCode = VerificationCode::extract(item->title(), item->message());
+    if (!verificationCode.isEmpty()) {
+        ui->pb_copy_code->setText(tr("Copy verification code"));
+        ui->pb_copy_code->setToolTip(tr("Copy the detected verification code"));
+        ui->pb_copy_code->show();
+    } else {
+        ui->pb_copy_code->hide();
+    }
     ui->frame_content_image->hide();
     ui->label_message_fallback->hide();
     if (settings->forcePlainText()) {
@@ -155,6 +164,12 @@ MessageWidget::setImage(QString url)
 void MessageWidget::deleteCallback()
 {
     emit deletionRequested();
+}
+
+void MessageWidget::copyVerificationCodeCallback()
+{
+    if (!verificationCode.isEmpty())
+        QGuiApplication::clipboard()->setText(verificationCode);
 }
 
 void

@@ -500,6 +500,19 @@ bool Settings::useLocale()
 
 
 //------------------------------------------------------------------------------
+void Settings::setLanguage(const QString &language)
+{
+    setValue("language", language);
+}
+
+
+QString Settings::language()
+{
+    return value("language", QStringLiteral("system")).toString();
+}
+
+
+//------------------------------------------------------------------------------
 void Settings::setSortApplications(bool mode)
 {
     setValue("sortApplications", mode);

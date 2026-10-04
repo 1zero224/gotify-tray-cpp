@@ -28,6 +28,7 @@ signals:
 
 private slots:
     void deleteCallback();
+    void copyVerificationCodeCallback();
     void clickedContentImage();
     void linkHoveredCallback(const QString& link);
 
@@ -38,6 +39,7 @@ private:
     bool setImage(QString url);
     void setPriorityColor(int priority);
     QString imageUrl;
+    QString verificationCode;
 };
 
 #endif // MESSAGEWIDGET_H

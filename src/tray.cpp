@@ -18,10 +18,10 @@ Tray::Tray(QObject * parent) : QSystemTrayIcon(parent)
     setToolTip(qApp->applicationName());
     setIcon(QIcon(":/res/icons/tray.png"));
 
-    actionShowWindow = new QAction("Show Window");
-    actionSettings = new QAction("Settings");
-    actionReconnect = new QAction("Reconnect");
-    actionQuit = new QAction("Quit");
+    actionShowWindow = new QAction(tr("Show Window"));
+    actionSettings = new QAction(tr("Settings"));
+    actionReconnect = new QAction(tr("Reconnect"));
+    actionQuit = new QAction(tr("Quit"));
 
     menu.addAction(actionShowWindow);
     menu.addSeparator();

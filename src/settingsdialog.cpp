@@ -23,7 +23,10 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     bShowPriorityChanged(false)
 {
     ui->setupUi(this);
-    setWindowTitle("Preferences — " + qApp->applicationName());
+    ui->combo_language->setItemData(0, QStringLiteral("system"));
+    ui->combo_language->setItemData(1, QStringLiteral("en"));
+    ui->combo_language->setItemData(2, QStringLiteral("zh_CN"));
+    setWindowTitle(tr("Preferences - %1").arg(qApp->applicationName()));
 
     ui->label_app_version->setText(QApplication::applicationVersion());
     ui->label_qt_version->setText(qVersion());
@@ -74,7 +77,7 @@ void SettingsDialog::serverInfo()
 void SettingsDialog::applicationIcon()
 {
     int currentSize = ui->label_application_icon1->width();
-    int size = QInputDialog::getInt(this, "Application Icon Size", "Size in pixels", currentSize, 10, 100);
+    int size = QInputDialog::getInt(this, tr("Application Icon Size"), tr("Size in pixels"), currentSize, 10, 100);
     if (currentSize != size) {
         ui->label_application_icon1->setFixedSize(QSize(size, size));
         ui->label_application_icon2->setFixedSize(QSize(size, size));
@@ -86,7 +89,7 @@ void SettingsDialog::applicationIcon()
 void SettingsDialog::messageApplicationIcon()
 {
     int currentSize = ui->label_icon->width();
-    int size = QInputDialog::getInt(this, "Message Application Icon Size", "Size in pixels", currentSize, 10, 100);
+    int size = QInputDialog::getInt(this, tr("Message Application Icon Size"), tr("Size in pixels"), currentSize, 10, 100);
     if (currentSize != size) {
         ui->label_icon->setFixedSize(QSize(size, size));
         sizeChanged();
@@ -97,7 +100,7 @@ void SettingsDialog::messageApplicationIcon()
 void SettingsDialog::mainButton()
 {
     int currentSize = ui->label_refresh->width()/0.7; // TODO
-    int size = QInputDialog::getInt(this, "Main Button Size", "Size in pixels", currentSize, 10, 100);
+    int size = QInputDialog::getInt(this, tr("Main Button Size"), tr("Size in pixels"), currentSize, 10, 100);
     if (currentSize != size) {
         ui->label_refresh->setFixedSize(0.7*QSize(size, size));
         ui->label_delete_all->setFixedSize(0.9*QSize(size, size));
@@ -109,7 +112,7 @@ void SettingsDialog::mainButton()
 void SettingsDialog::statusLabel()
 {
     int currentSize = ui->label_status->width();
-    int size = QInputDialog::getInt(this, "Status Label Size", "Size in pixels", currentSize, 10, 100);
+    int size = QInputDialog::getInt(this, tr("Status Label Size"), tr("Size in pixels"), currentSize, 10, 100);
     if (currentSize != size) {
         ui->label_status->setFixedSize(QSize(size, size));
         sizeChanged();
@@ -120,7 +123,7 @@ void SettingsDialog::statusLabel()
 void SettingsDialog::messageButton()
 {
     int currentSize = ui->label_delete->width();
-    int size = QInputDialog::getInt(this, "Message Button Size", "Size in pixels", currentSize, 10, 100);
+    int size = QInputDialog::getInt(this, tr("Message Button Size"), tr("Size in pixels"), currentSize, 10, 100);
     if (currentSize != size) {
         ui->label_delete->setFixedSize(QSize(size, size));
         sizeChanged();
@@ -187,7 +190,7 @@ void SettingsDialog::selectedApplicationFont()
 void SettingsDialog::messagePriority()
 {
     int currentWidth = ui->label_priority->width();
-    int width = QInputDialog::getInt(this, "Priority Color Width", "Width in pixels", currentWidth, 1, 50);
+    int width = QInputDialog::getInt(this, tr("Priority Color Width"), tr("Width in pixels"), currentWidth, 1, 50);
     if (currentWidth != width) {
         ui->label_priority->setFixedWidth(width);
         showPriorityChanged();
@@ -221,7 +224,7 @@ void SettingsDialog::loadFonts()
 
 void SettingsDialog::resetFontsSizes()
 {
-    if (QMessageBox::warning(this, "Are you sure?", "Reset all fonts and sizes?",
+    if (QMessageBox::warning(this, tr("Are you sure?"), tr("Reset all fonts and sizes?"),
                              QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel,
                              QMessageBox::StandardButton::Cancel)
         == QMessageBox::StandardButton::Ok) {
@@ -279,7 +282,7 @@ void SettingsDialog::openCache()
 void
 SettingsDialog::openCustomTray()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Select a custom tray icon", QDir::homePath(), "Images (*.png *.jpg);;*");
+    QString path = QFileDialog::getOpenFileName(this, tr("Select a custom tray icon"), QDir::homePath(), "Images (*.png *.jpg);;*");
     if (path.isEmpty())
         return;
     ui->line_custom_tray_normal->setText(path);
@@ -288,7 +291,7 @@ SettingsDialog::openCustomTray()
 void
 SettingsDialog::openCustomTrayUnread()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Select a custom tray icon (unread)", QDir::homePath(), "Images (*.png *.jpg);;*");
+    QString path = QFileDialog::getOpenFileName(this, tr("Select a custom tray icon (unread)"), QDir::homePath(), "Images (*.png *.jpg);;*");
     if (path.isEmpty())
         return;
     ui->line_custom_tray_unread->setText(path);
@@ -297,7 +300,7 @@ SettingsDialog::openCustomTrayUnread()
 void
 SettingsDialog::openCustomTrayError()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Select a custom tray icon (error)", QDir::homePath(), "Images (*.png *.jpg);;*");
+    QString path = QFileDialog::getOpenFileName(this, tr("Select a custom tray icon (error)"), QDir::homePath(), "Images (*.png *.jpg);;*");
     if (path.isEmpty())
         return;
     ui->line_custom_tray_error->setText(path);
@@ -337,6 +340,7 @@ void
 SettingsDialog::connectComponents()
 {
     connect(ui->buttonBox->button(QDialogButtonBox::Apply), &QPushButton::clicked, this, &SettingsDialog::saveSettings);
+    connect(ui->combo_language, qOverload<int>(&QComboBox::currentIndexChanged), this, &SettingsDialog::changed);
 }
 
 
@@ -351,6 +355,8 @@ void SettingsDialog::readSettings()
     ui->cb_tray_icon_small_prio->setChecked(settings->traySmallPriority());
     ui->cb_priority_colors->setChecked(settings->priorityColor());
     ui->cb_locale->setChecked(settings->useLocale());
+    const int languageIndex = ui->combo_language->findData(settings->language());
+    ui->combo_language->setCurrentIndex(languageIndex >= 0 ? languageIndex : 0);
     ui->cb_sort_applications->setChecked(settings->sortApplications());
     ui->cb_image_urls->setChecked(settings->showImageUrl());
 
@@ -398,6 +404,13 @@ void SettingsDialog::saveSettings()
     settings->setTrayUnreadEnabled(ui->cb_tray_icon_unread->isChecked());
     settings->setTraySmallPriority(ui->cb_tray_icon_small_prio->isChecked());
     settings->setUseLocale(ui->cb_locale->isChecked());
+    const QString previousLanguage = settings->language();
+    const QString selectedLanguage = ui->combo_language->currentData().toString();
+    settings->setLanguage(selectedLanguage);
+    if (previousLanguage != selectedLanguage) {
+        QMessageBox::information(this, tr("Language changed"),
+                                 tr("Restart the application to apply the new language."));
+    }
     settings->setSortApplications(ui->cb_sort_applications->isChecked());
     settings->setShowImageUrl(ui->cb_image_urls->isChecked());
     if (bShowPriorityChanged) {
@@ -451,7 +464,7 @@ void SettingsDialog::saveSettings()
 
 void SettingsDialog::resetSettings()
 {
-    if (QMessageBox::warning(this, "Are you sure?", "Reset all settings?",
+    if (QMessageBox::warning(this, tr("Are you sure?"), tr("Reset all settings?"),
                              QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel,
                              QMessageBox::StandardButton::Cancel)
         == QMessageBox::StandardButton::Ok) {

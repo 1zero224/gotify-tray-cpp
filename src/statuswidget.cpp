@@ -22,7 +22,7 @@ StatusWidget::setStatus(QString image)
 void
 StatusWidget::setActive()
 {
-    setToolTip("Listening for new messages");
+    setToolTip(tr("Listening for new messages"));
     setStatus("status_active.svg");
 }
 
@@ -30,7 +30,7 @@ StatusWidget::setActive()
 void
 StatusWidget::setConnecting()
 {
-    setToolTip("Connecting...");
+    setToolTip(tr("Connecting..."));
     setStatus("status_connecting.svg");
 }
 
@@ -38,7 +38,7 @@ StatusWidget::setConnecting()
 void
 StatusWidget::setInactive()
 {
-    setToolTip("Listener inactive.");
+    setToolTip(tr("Listener inactive."));
     setStatus("status_inactive.svg");
 }
 
@@ -46,7 +46,7 @@ StatusWidget::setInactive()
 void
 StatusWidget::setError()
 {
-    setToolTip("Listener error");
+    setToolTip(tr("Listener error"));
     setStatus("status_error.svg");
 }
 

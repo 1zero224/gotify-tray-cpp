@@ -10,6 +10,7 @@
 
 class StatusWidget : public QLabel
 {
+    Q_OBJECT
 public:
     StatusWidget(QWidget * parent = nullptr);
     void setActive();

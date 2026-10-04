@@ -19,7 +19,7 @@ ServerInfoDialog::ServerInfoDialog(QWidget* parent, QUrl url, QByteArray clientT
     ui->line_url->setText(url.toString());
     ui->line_token->setText(clientToken);
     if (url.scheme() == "https" && !certPath.isEmpty())
-        ui->label_status->setText("Certificate: " + certPath);
+        ui->label_status->setText(tr("Certificate: %1").arg(certPath));
     ui->buttonBox->button(QDialogButtonBox::StandardButton::Ok)->setDisabled(true);
     setStyleSheet(Utils::readFile(":/res/themes/" + Utils::getTheme() + "/ServerInfoDialog.qss"));
     adjustSize();
@@ -105,18 +105,18 @@ ServerInfoDialog::urlChangedCallback(QString text)
 void
 ServerInfoDialog::certificateCallback()
 {
-    QString path = QFileDialog::getOpenFileName(this, "Import self-signed server certificate", QDir::homePath(), "Certificates (*.pem *.crt);;*");
+    QString path = QFileDialog::getOpenFileName(this, tr("Import self-signed server certificate"), QDir::homePath(), "Certificates (*.pem *.crt);;*");
     if (path.isEmpty())
         return;
 
     QList<QSslError> expectedErrors = Utils::getSelfSignedExpectedErrors(path);
     if (expectedErrors.size()) {
         certPath = path;
-        ui->label_status->setText("Certificate: " + certPath);
+        ui->label_status->setText(tr("Certificate: %1").arg(certPath));
         Utils::updateWidgetProperty(ui->pb_certificate, "state", "");
     } else {
         certPath = "";
-        ui->label_status->setText("ERROR: Invalid certificate");
+        ui->label_status->setText(tr("ERROR: Invalid certificate"));
         Utils::updateWidgetProperty(ui->pb_certificate, "state", "failed");
     }
 
@@ -162,7 +162,7 @@ ServerInfoDialog::testSuccessCallback()
     Utils::updateWidgetProperty(ui->line_token, "state", "success");
     Utils::updateWidgetProperty(ui->line_url, "state", "success");
 
-    ui->label_status->setText("Server information verified");
+    ui->label_status->setText(tr("Server information verified"));
 
     setMinimumWidth(width());
     adjustSize();

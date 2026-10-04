@@ -9,6 +9,7 @@
 #include <QStandardPaths>
 #include <QString>
 #include <QPoint>
+#include <QTranslator>
 
 #include "mainwindow.h"
 #include "tray.h"
@@ -43,6 +44,7 @@ public:
     ProcessThread::Applications processApplicationsThread;
     QTimer* heartbeatTimer;
     qint64 lastHeartbeat;
+    QTranslator translator;
 
     void initGui();
     void initComponents();

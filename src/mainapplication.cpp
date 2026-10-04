@@ -8,12 +8,15 @@
 #include "processthread.h"
 #include "requesthandler.h"
 #include "utils.h"
+#include "notificationpopup.h"
+#include "verificationcode.h"
 
 #include <QShortcut>
 #include <QKeySequence>
 #include <QStyleHints>
 #include <QStyle>
 #include <QSystemTrayIcon>
+#include <QLocale>
 
 #ifdef USE_KDE
 #include <KNotification>
@@ -32,6 +35,13 @@ MainApplication::MainApplication(int& argc, char* argv[])
     applyStyle();
 
     settings = Settings::getInstance();
+    const QString language = settings->language();
+    const bool useChinese = language == QStringLiteral("zh_CN") ||
+        (language == QStringLiteral("system") && QLocale::system().language() == QLocale::Chinese);
+    if (useChinese &&
+        translator.load(QStringLiteral(":/i18n/gotify-tray_zh_CN.qm"))) {
+        installTranslator(&translator);
+    }
     cache = Cache::getInstance();
     requestHandler = RequestHandler::getInstance();
 
@@ -260,7 +270,7 @@ void MainApplication::applicationsCallback(GotifyModel::Applications * applicati
 
 void MainApplication::insertApplications(GotifyModel::Applications * applications)
 {
-    ApplicationItem * item = new ApplicationItem("ALL MESSAGES");
+    ApplicationItem * item = new ApplicationItem(QCoreApplication::translate("MainApplication", "ALL MESSAGES"));
     applicationItemModel.insertRow(0, item);
 
     for (auto application : applications->applications) {
@@ -296,7 +306,7 @@ void MainApplication::listenerDisconnectedCallback()
     qDebug() << "Listener disconnected";
     mainWindow->setConnecting();
     tray->setError();
-    tray->setToolTip("Disconnected from server...");
+    tray->setToolTip(QCoreApplication::translate("MainApplication", "Disconnected from server..."));
     listener->startListening();
 }
 
@@ -386,15 +396,17 @@ void MainApplication::messageReceivedCallback(GotifyModel::Message * message)
     notification->setUrls(urls);
 
     if (settings->notificationClick()) {
-        KNotificationAction* action = notification->addDefaultAction(QStringLiteral("Open")); // default action -> triggered when clicking the popup
+        KNotificationAction* action = notification->addDefaultAction(QCoreApplication::translate("MainApplication", "Open")); // default action -> triggered when clicking the popup
         QObject::connect(action, &KNotificationAction::activated, this, [this] { mainWindow->bringToFront(); });
     }
     notification->sendEvent();
 #else
-    // QSystemTrayIcon Notification
-    tray->showMessage(
+    // QSystemTrayIcon cannot expose action buttons on Windows. Use a small
+    // native-looking Qt popup so the copy action is available consistently.
+    NotificationPopup::showNotification(
       message->title,
       message->message,
+      VerificationCode::extract(message->title, message->message),
       QIcon(cache->getFile(message->appId)),
       settings->notificationDurationMs());
 #endif

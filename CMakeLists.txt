@@ -19,6 +19,12 @@ endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network WebSockets Sql)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network WebSockets Sql)
 
+if(QT_VERSION_MAJOR EQUAL 6)
+    find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
+else()
+    find_package(Qt5LinguistTools REQUIRED)
+endif()
+
 if (WIN32)
     set(APP_ICON_RESOURCE_WINDOWS "${CMAKE_CURRENT_SOURCE_DIR}/gotify-tray++.rc")
 endif()
@@ -58,6 +64,8 @@ qt_add_executable(gotify-tray++
     src/clickablelabel.h src/clickablelabel.cpp
     src/processthread.h src/processthread.cpp
     src/imagepopup.h src/imagepopup.cpp
+    src/verificationcode.h src/verificationcode.cpp
+    src/notificationpopup.h src/notificationpopup.cpp
 
 )
 
@@ -91,5 +99,39 @@ install(TARGETS gotify-tray++
 )
 
 if(QT_VERSION_MAJOR EQUAL 6)
+    if(Qt6_VERSION VERSION_GREATER_EQUAL 6.9)
+        set(GOTIFY_QT_TRANSLATIONS MERGE_QT_TRANSLATIONS QT_TRANSLATION_CATALOGS qtbase)
+    endif()
+    qt_add_translations(gotify-tray++
+        TS_FILES translations/gotify-tray_zh_CN.ts
+        RESOURCE_PREFIX "/i18n"
+        ${GOTIFY_QT_TRANSLATIONS}
+    )
     qt_finalize_executable(gotify-tray++)
+else()
+    qt5_add_translation(GOTIFY_TRANSLATIONS translations/gotify-tray_zh_CN.ts)
+    configure_file(translations/translations.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc @ONLY)
+    add_custom_target(gotify-translations DEPENDS ${GOTIFY_TRANSLATIONS})
+    add_dependencies(gotify-tray++ gotify-translations)
+    target_sources(gotify-tray++ PRIVATE ${CMAKE_CURRENT_BINARY_DIR}/translations.qrc)
+endif()
+
+option(GOTIFY_BUILD_TESTS "Build offline translation and language setting tests" OFF)
+if(GOTIFY_BUILD_TESTS)
+    enable_testing()
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    get_target_property(GOTIFY_TEST_SOURCES gotify-tray++ SOURCES)
+    list(FILTER GOTIFY_TEST_SOURCES EXCLUDE REGEX "(main|mainapplication)\\.cpp$|gotify-tray\\+\\+\\.rc$|README\\.md$")
+    configure_file(translations/translations.qrc.in ${CMAKE_CURRENT_BINARY_DIR}/test-translations.qrc @ONLY)
+    add_executable(gotify-language-test tests/languagetest.cpp ${GOTIFY_TEST_SOURCES}
+        ${CMAKE_CURRENT_BINARY_DIR}/test-translations.qrc)
+    add_dependencies(gotify-language-test gotify-tray++)
+    target_link_libraries(gotify-language-test PRIVATE Qt${QT_VERSION_MAJOR}::Widgets
+        Qt${QT_VERSION_MAJOR}::Network Qt${QT_VERSION_MAJOR}::WebSockets
+        Qt${QT_VERSION_MAJOR}::Sql Qt${QT_VERSION_MAJOR}::Test)
+    if(KF6Notifications_FOUND)
+        target_link_libraries(gotify-language-test PRIVATE KF6::Notifications)
+    endif()
+    add_test(NAME language-settings COMMAND gotify-language-test)
+    set_tests_properties(language-settings PROPERTIES ENVIRONMENT "QT_QPA_PLATFORM=offscreen")
 endif()

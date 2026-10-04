@@ -12,9 +12,22 @@ A tray notification application for receiving messages from a [Gotify server](ht
 - Manually delete received messages.
 - Go through a history of all previously received messages.
 - Receive missed messages after losing network connection.
+- English and Simplified Chinese UI. Choose Follow system, English, or
+  Simplified Chinese in Settings > General > Interface > Language, then
+  restart the application to apply the saved preference.
+- Detect labeled SMS one-time codes locally and show a `复制验证码` action in
+  the notification popup and message history. Only high-confidence candidates
+  are offered; bare numbers are ignored to avoid copying phone numbers,
+  amounts, dates, or order numbers.
 
 
 ## Installation
+
+Source builds require the Qt LinguistTools development package for compiling
+`translations/gotify-tray_zh_CN.ts`. Qt 6.9 and newer also merge the Qt `qtbase`
+translation catalog when available (install the Qt translations package for
+localized standard dialogs). Translation resources are embedded in the executable;
+end users do not need Qt Linguist installed.
 
 ### Windows
 

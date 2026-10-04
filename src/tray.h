@@ -11,6 +11,7 @@
 
 class Tray : public QSystemTrayIcon
 {
+    Q_OBJECT
 public:
     Tray(QObject * parent = nullptr);
     ~Tray();

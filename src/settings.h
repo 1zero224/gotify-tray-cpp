@@ -129,6 +129,9 @@ public:
     void setUseLocale(bool mode);
     bool useLocale();
 
+    void setLanguage(const QString &language);
+    QString language();
+
     void setSortApplications(bool mode);
     bool sortApplications();
 

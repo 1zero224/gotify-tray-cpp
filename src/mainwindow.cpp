@@ -213,8 +213,8 @@ void MainWindow::deleteAllCallback()
 
     ApplicationItem * item = applicationItemModel->itemFromIndex(applicationProxyModel->mapToSource(selectedApplication()));
 
-    QString text = item->allMessages() ? "Delete ALL messages?" : "Delete all '" + item->name() + "' messages?";
-    if (QMessageBox::warning(this, "Are you sure?", text,
+    QString text = item->allMessages() ? tr("Delete ALL messages?") : tr("Delete all '%1' messages?").arg(item->name());
+    if (QMessageBox::warning(this, tr("Are you sure?"), text,
                              QMessageBox::StandardButton::Ok | QMessageBox::StandardButton::Cancel,
                              QMessageBox::StandardButton::Cancel)
         != QMessageBox::StandardButton::Ok) {
