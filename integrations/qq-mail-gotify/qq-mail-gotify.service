@@ -1,0 +1,27 @@
+[Unit]
+Description=QQ verification email to Gotify
+Wants=network-online.target
+After=network-online.target
+ConditionPathExists=/etc/qq-mail-gotify/config.json
+
+[Service]
+Type=simple
+DynamicUser=yes
+StateDirectory=qq-mail-gotify
+StateDirectoryMode=0700
+LoadCredential=config.json:/etc/qq-mail-gotify/config.json
+ExecStart=/usr/bin/python3 /opt/qq-mail-gotify/bridge.py
+Restart=on-failure
+RestartSec=30
+NoNewPrivileges=yes
+PrivateTmp=yes
+ProtectSystem=strict
+ProtectHome=yes
+ProtectKernelTunables=yes
+ProtectKernelModules=yes
+ProtectControlGroups=yes
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

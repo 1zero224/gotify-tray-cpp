@@ -53,6 +53,14 @@ bool looksLikePhoneOrDate(const QString &text, int start, int length)
 
 QString VerificationCode::extract(const QString &title, const QString &message)
 {
+    // The mail bridge emits this exact title only after resolving a unique code.
+    // Do not let English words in the forwarded subject/body override that code.
+    static const QRegularExpression canonicalTitle(
+        QStringLiteral("^验证码[：:]\\s*([A-Za-z0-9]{4,8})$"));
+    const auto canonical = canonicalTitle.match(normalize(title).trimmed());
+    if (canonical.hasMatch() && canonical.captured(1).contains(QRegularExpression(QStringLiteral("[0-9]"))))
+        return canonical.captured(1);
+
     const QString text = normalize(title + QStringLiteral("\n") + message);
     QVector<Candidate> candidates;
 

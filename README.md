@@ -23,6 +23,14 @@ A tray notification application for receiving messages from a [Gotify server](ht
 
 ## Installation
 
+### Optional QQ email forwarding
+
+The [QQ mail bridge](integrations/qq-mail-gotify/README.md) can run on a Linux
+server and forward recognized email verification codes to the same Gotify
+server. It includes separate-paragraph HTML code detection and regression tests.
+Update the desktop client for authoritative `验证码：<code>` title handling so
+English text in forwarded emails cannot hide the copy-code action.
+
 Source builds require the Qt LinguistTools development package for compiling
 `translations/gotify-tray_zh_CN.ts`. Qt 6.9 and newer also merge the Qt `qtbase`
 translation catalog when available (install the Qt translations package for
