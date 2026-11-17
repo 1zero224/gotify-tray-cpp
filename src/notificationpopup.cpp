@@ -2,6 +2,8 @@
 
 #include <QApplication>
 #include <QClipboard>
+#include <QEnterEvent>
+#include <QEvent>
 #include <QHBoxLayout>
 #include <QIcon>
 #include <QLabel>
@@ -20,6 +22,11 @@
 #include <QScrollBar>
 
 namespace {
+constexpr int kMinimumDurationMs = 1000;
+// A one-time code is useless once the popup is gone, so keep it up longer than
+// ordinary messages even if the user configured a short duration.
+constexpr int kCodeMinimumDurationMs = 15000;
+
 QString notificationBody(const QString &message)
 {
     // Strip only explicitly labelled forwarding metadata, never embedded SMS text.
@@ -104,7 +111,28 @@ NotificationPopup::NotificationPopup(const QString &title, const QString &messag
     }
 
     connect(closeTimer, &QTimer::timeout, this, &QWidget::close);
-    closeTimer->start(qMax(1000, durationMs));
+    timeoutMs = qMax(kMinimumDurationMs,
+                     code.isEmpty() ? durationMs : qMax(durationMs, kCodeMinimumDurationMs));
+    remainingMs = timeoutMs;
+    closeTimer->start(timeoutMs);
+}
+
+void NotificationPopup::enterEvent(QEnterEvent *event)
+{
+    // Keep the popup alive while the pointer is over it, so the code can be
+    // read or copied without racing the auto-close timer.
+    QWidget::enterEvent(event);
+    if (closeTimer->isActive()) {
+        remainingMs = closeTimer->remainingTime();
+        closeTimer->stop();
+    }
+}
+
+void NotificationPopup::leaveEvent(QEvent *event)
+{
+    QWidget::leaveEvent(event);
+    if (remainingMs > 0 && !closeTimer->isActive())
+        closeTimer->start(remainingMs);
 }
 
 void NotificationPopup::fitBodyHeight()

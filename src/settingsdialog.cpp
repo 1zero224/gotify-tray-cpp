@@ -43,12 +43,6 @@ SettingsDialog::SettingsDialog(QWidget *parent) :
     cacheThread = QThread::create([this]{ui->label_cache->setText(QString::number(cache->size()/1e6, 'f', 2) + " MB");});
     cacheThread->start();
 
-#ifdef Q_OS_WIN
-    ui->label_notification_duration->hide();
-    ui->label_notification_duration_ms->hide();
-    ui->spin_duration->hide();
-#endif
-
     readSettings();
     connectComponents();
     

@@ -7,6 +7,8 @@ class QLabel;
 class QPushButton;
 class QTimer;
 class QIcon;
+class QEnterEvent;
+class QEvent;
 
 class NotificationPopup : public QWidget
 {
@@ -19,6 +21,8 @@ public:
 
 private:
     void showEvent(QShowEvent *event) override;
+    void enterEvent(QEnterEvent *event) override;
+    void leaveEvent(QEvent *event) override;
     void fitBodyHeight();
     void paintEvent(QPaintEvent *event) override;
     explicit NotificationPopup(const QString &title, const QString &message,
@@ -28,6 +32,8 @@ private:
 
     QString code;
     QTimer *closeTimer;
+    int timeoutMs = 0;
+    int remainingMs = 0;
 };
 
 #endif // NOTIFICATIONPOPUP_H

@@ -302,7 +302,7 @@ void Settings::setNotificationDurationMs(int ms)
 
 int Settings::notificationDurationMs()
 {
-    return value("notificationDuration", 5000).toInt();
+    return value("notificationDuration", 8000).toInt();
 }
 
 
