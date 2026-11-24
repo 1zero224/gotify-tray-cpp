@@ -33,7 +33,7 @@ const QString &labelPattern()
     static const QString pattern = QStringLiteral(
         "验证码|校验码|校验代码|动态码|动态密码|确认码|确认代码|认证码|安全码|登录码|"
         "验证代码|提取码|授权码|短信码|一次性密码|認証コード|確認コード|"
-        "verification\\s+code|security\\s+code|one[- ]time\\s+(?:password|code)|"
+        "verification\\s+code|confirmation\\s+code|security\\s+code|one[- ]time\\s+(?:password|code)|"
         "otp|passcode|auth(?:entication)?\\s+code|login\\s+code");
     return pattern;
 }
@@ -150,6 +150,13 @@ QString VerificationCode::extract(const QString &title, const QString &message)
     const auto canonical = canonicalTitle.match(normalize(title).trimmed());
     if (canonical.hasMatch() && canonical.captured(1).contains(QRegularExpression(QStringLiteral("[0-9]"))))
         return canonical.captured(1);
+
+    // Ambiguous mail carries several candidates ("验证码候选：A / B"). Offering a
+    // one-click copy of an unverified pick would be wrong, so never auto-select.
+    static const QRegularExpression candidateTitle(
+        QStringLiteral("^验证码候选[：:]\\s*[A-Za-z0-9]{4,8}(?:\\s*/\\s*[A-Za-z0-9]{4,8})+$"));
+    if (candidateTitle.match(normalize(title).trimmed()).hasMatch())
+        return {};
 
     const QString text = stripValidityPhrases(normalize(title + QStringLiteral("\n") + message));
     QVector<Candidate> candidates;

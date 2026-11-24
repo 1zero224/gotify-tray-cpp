@@ -45,6 +45,16 @@ int main(int argc, char **argv)
         {QStringLiteral("SMS"),
          QString::fromUtf8("验证码已发送至手机 13800138000，请查收。"),
          {}},
+        // Prove2Me-style mail: the label is "confirmation code" and the code
+        // sits alone on the following line.
+        {QStringLiteral("Confirm your Prove2Me Signup"),
+         QStringLiteral("Prove2Me Your confirmation code:\n630279\nEnter it on the sign in page, or give it to your agent. It expires in 1 hour. Only the newest code works. Not you? Ignore this email."),
+         QStringLiteral("630279")},
+        // The mail bridge sends multiple candidates when it cannot decide; the
+        // desktop must not silently turn one of them into the copied code.
+        {QString::fromUtf8("验证码候选：630279 / 123456"),
+         QString::fromUtf8("Prove2Me Your confirmation code:\n630279\n"),
+         {}},
     };
     const int count = int(sizeof(cases) / sizeof(cases[0]));
     QTextStream output(stdout);

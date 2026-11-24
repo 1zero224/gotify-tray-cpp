@@ -7,17 +7,25 @@ the desktop client. No extra Python dependencies are required (Python 3.10+).
 
 ## Recognition
 
-The bridge recognizes Chinese and English labels with nearby 4–8 character
-alphanumeric codes containing a digit. It also supports HTML emails that place
-a standalone code in the next paragraph after an explicit instruction such as
-`use the following verification code to complete the process:`. This fallback
-has a 160-character boundary and stops at intervening prose; calendar values
-are excluded. Different candidate codes cause the email to be skipped.
+Recognition is two-staged. Every 4–8 character alphanumeric token (including
+grouped forms such as `123 456` and `123-456`) becomes a candidate; candidates
+are then scored by nearby label, a standalone paragraph after an introduction
+line, HTML styling (`letter-spacing`, large font size, monospace, `<b>`), code
+length, and negative context such as invoice, order, amount or phone numbers.
+Calendar values, CSS lengths, URLs and repeated digits are discarded.
+
+Exactly one candidate above the threshold is forwarded with the canonical
+`验证码：<code>` title. When several candidates qualify the bridge forwards them
+as `验证码候选：A / B` instead of dropping the email; the desktop shows both
+candidates but offers no one-click copy. Emails without any candidate are
+skipped. The introduction-line fallback keeps a 160-character boundary and
+stops at intervening prose.
 
 Ordinary emails and messages larger than 2 MB are not forwarded. The first run
 initializes a mailbox cursor without forwarding historical emails. Keep the
 state directory on upgrades: resetting it does not replay previously skipped
-emails. Logs contain only UIDs and outcomes, not email content or credentials.
+emails. Logs contain only UIDs and outcomes, not email content, candidate codes
+or credentials.
 
 ## Test
 
@@ -26,9 +34,10 @@ cd integrations/qq-mail-gotify
 python3 -m unittest -v
 ```
 
-The regression suite includes an anonymized quoted-printable HTML reproduction
-of a separate-paragraph verification code, unrelated numbers, dates, and
-ambiguous candidates. Do not commit real mail samples or authorization codes.
+The regression suite includes anonymized reproductions of separate-paragraph
+codes, codes styled with `letter-spacing`/large fonts, inline grouped codes,
+unrelated numbers, dates, CSS values, invoice amounts, and ambiguous candidates.
+Do not commit real mail samples or authorization codes.
 
 ## Deployment
 
